@@ -1,0 +1,31 @@
+body {
+    margin-left: auto;
+    margin-right: auto;
+    width: 40%;
+    font-family: 'Open Sans', sans-serif;
+}
+
+h1 {
+    text-align: center;
+}
+
+ol {
+    list-style-type: none;
+}
+
+li {
+    border: 1px solid black;
+    margin: 5px;
+    cursor: pointer;
+    display: flex;
+}
+
+li > label {
+    cursor: pointer;
+    flex-grow: 1;
+}
+
+li > label > input {
+    margin-right: 10px;
+    cursor: pointer;
+}

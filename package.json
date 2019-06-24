@@ -1,0 +1,21 @@
+{
+  "name": "todo",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+      "serve": "parcel src/index.html",
+      "build": "parcel build src/index.html"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "parcel": "^1.12.3"
+  },
+  "devDependencies": {
+    "elm": "^0.19.0-no-deps",
+    "elm-hot": "^1.1.0",
+    "node-elm-compiler": "^5.0.3"
+  }
+}
