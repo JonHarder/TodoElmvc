@@ -122,6 +122,14 @@ updateItems checkedId items =
     List.indexedMap (checkItem checkedId) items
 
 
+addTodo : String -> List Item -> List Item
+addTodo value items =
+    if String.isEmpty value then
+        items
+    else
+        List.append items [ Item { done = False, value = value } ] 
+
+
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
     case msg of
@@ -134,16 +142,9 @@ update msg model =
             )
 
         NewTodo value ->
-            let
-                items =
-                    if String.isEmpty value then
-                        model.items
-                    else
-                       List.append model.items [ Item { done = False, value = value } ] 
-            in
-                ( { model | items = items }
-                , Cmd.none
-                )
+            ( { model | items = addTodo value model.items }
+            , Cmd.none
+            )
 
 
 -----------------------------------------------------------------------------------
