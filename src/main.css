@@ -17,12 +17,11 @@ li {
     border: 1px solid black;
     margin: 5px;
     cursor: pointer;
-    display: flex;
 }
 
 li > label {
     cursor: pointer;
-    flex-grow: 1;
+    display: block;
 }
 
 li > label > input {
