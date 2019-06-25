@@ -1,8 +1,8 @@
 import Browser exposing (application)
 import Browser.Navigation exposing (Key)
-import Html exposing (Html, Attribute, button, div, h1, input, label, li, text, ol)
-import Html.Attributes exposing (checked, placeholder, style, type_)
-import Html.Events exposing (on, onClick, keyCode, targetValue)
+import Html exposing (Html, Attribute, button, div, form, h1, input, label, li, span, text, ol)
+import Html.Attributes exposing (class, classList, checked, placeholder, style, type_)
+import Html.Events exposing (on, onSubmit, onInput, onClick, keyCode, targetValue)
 import Json.Decode as Json
 import Url exposing (Url)
 
@@ -12,39 +12,21 @@ type Item = Item { done : Bool, value : String }
 type alias Model =
     { key : Key
     , items: List Item
+    , newTodo : String
     }
 
 type Msg
     = NoOp
     | Check Int
-    | NewTodo String
+    | DeleteItem Int
+    | UpdateNewTodo String
+    | MakeItem
 
 
 init : () -> Url -> Key -> ( Model, Cmd Msg )
 init flags url key =
-    let items =
-            [ Item {done = False
-                   , value = "do the thing"
-                   }
-            , Item {done = False
-                   , value = "and then do the other thing"
-                   }
-            ]
-    in ( { key = key, items = items }, Cmd.none )
+    ( { key = key, items = [], newTodo = "" }, Cmd.none )
 
-
-onEnter : (String -> Msg ) -> Attribute Msg
-onEnter toMsg =
-    let
-        isEnter code =
-            if code == 13 then
-                Json.succeed "enter pressed"
-            else
-                Json.fail "not Enter"
-        decodeEnter =
-            Json.andThen isEnter keyCode
-    in
-        on "keydown" (Json.map2 (\key value -> toMsg value) decodeEnter targetValue)
 
 -------------------------------------------------------------------------------
 -- VIEW
@@ -77,33 +59,42 @@ checkbox msg isChecked name =
               , checked isChecked
               , onClick msg
               ] []
-        , text name
+        , span [ classList [("strikethrough", isChecked)] ] [ text name ]
         ]
+
+
+deleteButton : Int -> Html Msg
+deleteButton id =
+    button [ class "delete"
+           , onClick (DeleteItem id)
+           ]
+        [ text "X" ]
 
 
 showItem : Int -> Item -> Html Msg
 showItem id (Item item) =
     li []
-        [ checkbox (Check id) item.done item.value ]
+        [ checkbox (Check id) item.done item.value
+        , deleteButton id
+        ]
     
 
 showTodo : List Item -> Html Msg
 showTodo items =
-    if (List.length items) > 0 then
-        ol []
-          (List.append (List.indexedMap showItem items) [newTodo])
-    else
-        text "Nothing to do"
+    ol []
+      (List.append (List.indexedMap showItem items) [newTodo])
 
 
 newTodo : Html Msg
 newTodo =
     li []
-        [ input
-              [ placeholder "Add another"
-              , onEnter NewTodo
+        [ form [ onSubmit MakeItem ]
+              [ input
+                    [ placeholder "Add an item"
+                    , onInput UpdateNewTodo
+                    ]
+                    []
               ]
-              []
         ]
 -----------------------------------------------------------------------------------
 -- UPDATE
@@ -130,6 +121,15 @@ addTodo value items =
         List.append items [ Item { done = False, value = value } ] 
 
 
+deleteIndex : Int -> List a -> List a
+deleteIndex index items =
+    let
+        indexed = List.indexedMap Tuple.pair items
+        filtered = List.filter (\(i, item) -> i /= index) indexed
+    in
+        List.map Tuple.second filtered
+
+
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
     case msg of
@@ -141,10 +141,25 @@ update msg model =
             , Cmd.none
             )
 
-        NewTodo value ->
-            ( { model | items = addTodo value model.items }
+        DeleteItem id ->
+            ( { model | items = deleteIndex id model.items }
             , Cmd.none
             )
+
+        UpdateNewTodo value ->
+            ( { model | newTodo = value }
+            , Cmd.none
+            )
+
+        MakeItem ->
+            let
+                todoValue = model.newTodo
+            in
+                ( { model | items = addTodo todoValue model.items
+                          , newTodo = ""
+                  }
+                , Cmd.none
+                )
 
 
 -----------------------------------------------------------------------------------

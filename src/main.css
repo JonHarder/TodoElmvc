@@ -3,6 +3,7 @@ body {
     margin-right: auto;
     width: 40%;
     font-family: 'Open Sans', sans-serif;
+    font-size: 20px;
 }
 
 h1 {
@@ -15,16 +16,51 @@ ol {
 
 li {
     border: 1px solid black;
+    border-radius: 3px;
     margin: 5px;
     cursor: pointer;
+    display: flex;
 }
 
-li > label {
+li label {
     cursor: pointer;
-    display: block;
+    flex-grow: 1;
 }
 
-li > label > input {
+li label input {
     margin-right: 10px;
     cursor: pointer;
+}
+
+li form {
+    flex-grow: 1;
+    padding-right: 4px;
+}
+
+li form input {
+    width: 100%;
+    font-size: 20px;
+}
+
+.delete {
+    margin-right: 10px;
+}
+
+.strikethrough {
+    text-decoration: line-through;
+}
+
+button {
+    cursor: pointer;
+}
+
+button.delete {
+    font-size: 20px;
+    background: inherit;
+    border: 0px;
+    border-radius: 25px;
+}
+
+button.delete:hover {
+    background: #cccccc;
 }
