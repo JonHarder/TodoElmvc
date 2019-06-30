@@ -27,11 +27,14 @@ type Msg
 
 parseFlags : Json.Value -> List Item
 parseFlags value =
-    case Json.decodeValue (Json.field "items" decodeItems) value of
-        Ok items ->
-            items
-        Err _ ->
-            []
+    let
+        flagsDecoder = Json.field "items" decodeItems
+    in
+        case Json.decodeValue flagsDecoder value of
+            Ok items ->
+                items
+            Err _ ->
+                []
 
 init : Json.Value -> Url -> Key -> ( Model, Cmd Msg )
 init flags url key =
