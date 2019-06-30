@@ -110,9 +110,13 @@ update msg model =
                 )
 
         DeleteItem id ->
-            ( { model | items = deleteIndex id model.items }
-            , Cmd.none
-            )
+            let
+                items =
+                    deleteIndex id model.items
+            in
+                ( { model | items = items }
+                , saveList items
+                )
 
         UpdateNewTodo value ->
             ( { model | newTodo = value }
