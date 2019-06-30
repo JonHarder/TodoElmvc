@@ -4,10 +4,12 @@ import Html exposing (Html, Attribute, button, div, form, h1, input, label, li, 
 import Html.Attributes exposing (class, classList, checked, placeholder, style, type_)
 import Html.Events exposing (on, onSubmit, onInput, onClick, keyCode, targetValue)
 import Json.Decode as Json
+import Json.Encode as E
 import Url exposing (Url)
 
+import Item exposing (..)
+import Cache exposing (saveList)
 
-type Item = Item { done : Bool, value : String }
 
 type alias Model =
     { key : Key
@@ -25,7 +27,9 @@ type Msg
 
 init : () -> Url -> Key -> ( Model, Cmd Msg )
 init flags url key =
-    ( { key = key, items = [], newTodo = "" }, Cmd.none )
+    let items = []
+        cmd = Cmd.none -- loadItems items
+    in ( { key = key, items = [], newTodo = "" }, cmd )
 
 
 -------------------------------------------------------------------------------
@@ -34,7 +38,7 @@ view : Model -> Html Msg
 view model = 
     let
         (done, notDone) =
-            List.partition (\(Item item) -> item.done) model.items
+            List.partition isDone model.items
         doneCount =
             List.length done
         notDoneCount =
@@ -50,39 +54,10 @@ view model =
             ]
 
 
-checkbox : msg -> Bool -> String -> Html msg
-checkbox msg isChecked name =
-    label
-        []
-        [ input
-              [ type_ "checkbox"
-              , checked isChecked
-              , onClick msg
-              ] []
-        , span [ classList [("strikethrough", isChecked)] ] [ text name ]
-        ]
-
-
-deleteButton : Int -> Html Msg
-deleteButton id =
-    button [ class "delete"
-           , onClick (DeleteItem id)
-           ]
-        [ text "X" ]
-
-
-showItem : Int -> Item -> Html Msg
-showItem id (Item item) =
-    li []
-        [ checkbox (Check id) item.done item.value
-        , deleteButton id
-        ]
-    
-
 showTodo : List Item -> Html Msg
 showTodo items =
     ol []
-      (List.append (List.indexedMap showItem items) [newTodo])
+      (List.append (List.indexedMap (showItem Check DeleteItem) items) [newTodo])
 
 
 newTodo : Html Msg
@@ -100,25 +75,14 @@ newTodo =
 -- UPDATE
 
 
-checkItem : Int -> Int -> Item -> Item
-checkItem checkedId itemId (Item item) =
-    if checkedId == itemId then
-        Item { item | done = not item.done }
-    else
-        Item item
-
-
 updateItems : Int -> List Item -> List Item
 updateItems checkedId items =
     List.indexedMap (checkItem checkedId) items
 
 
-addTodo : String -> List Item -> List Item
-addTodo value items =
-    if String.isEmpty value then
-        items
-    else
-        List.append items [ Item { done = False, value = value } ] 
+addTodo : Item -> List Item -> List Item
+addTodo item items =
+    List.append items [ item ] 
 
 
 deleteIndex : Int -> List a -> List a
@@ -137,9 +101,13 @@ update msg model =
             ( model, Cmd.none )
 
         Check id ->
-            ( { model | items = updateItems id model.items }
-            , Cmd.none
-            )
+            let
+                items =
+                    updateItems id model.items
+            in
+                ( { model | items = items }
+                , saveList items
+                )
 
         DeleteItem id ->
             ( { model | items = deleteIndex id model.items }
@@ -153,12 +121,17 @@ update msg model =
 
         MakeItem ->
             let
-                todoValue = model.newTodo
+                item = mkItem model.newTodo
+                (items, cmd) =
+                    case item of
+                        Just i ->
+                            let added = addTodo i model.items
+                            in (added, saveList added)
+                        Nothing ->
+                            (model.items, Cmd.none)
             in
-                ( { model | items = addTodo todoValue model.items
-                          , newTodo = ""
-                  }
-                , Cmd.none
+                ( { model | items = items , newTodo = "" }
+                , cmd
                 )
 
 
