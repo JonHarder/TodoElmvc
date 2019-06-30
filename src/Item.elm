@@ -1,11 +1,13 @@
-module Item exposing (Item, checkItem, encodeItem, isDone, showItem, mkItem)
+module Item exposing (Item, checkItem, encodeItem, decodeItems, isDone, showItem, mkItem)
 
 import Html exposing (Html, button, label, li, input, span, text)
 import Html.Attributes exposing (type_, class, checked, classList)
 import Html.Events exposing (onClick)
 import Json.Encode as E
+import Json.Decode as D
 
-type Item = Item { done : Bool, value : String }
+type alias ItemData = { done : Bool, value : String }
+type Item = Item ItemData
 
 
 isDone : Item -> Bool
@@ -25,6 +27,20 @@ encodeItem (Item item) =
     E.object [ ("done", E.bool item.done)
              , ("value", E.string item.value)
              ]
+
+
+
+decodeItem : D.Decoder Item
+decodeItem = D.map Item decodeItemData
+
+decodeItemData : D.Decoder ItemData
+decodeItemData = D.map2 ItemData
+                    (D.field "done" D.bool)
+                    (D.field "value" D.string)
+
+
+decodeItems : D.Decoder (List Item)
+decodeItems = D.list decodeItem
 
 
 mkItem : String -> Maybe Item

@@ -25,11 +25,23 @@ type Msg
     | MakeItem
 
 
-init : () -> Url -> Key -> ( Model, Cmd Msg )
+parseFlags : Json.Value -> List Item
+parseFlags value =
+    case Json.decodeValue (Json.field "items" decodeItems) value of
+        Ok items ->
+            items
+        Err _ ->
+            []
+
+init : Json.Value -> Url -> Key -> ( Model, Cmd Msg )
 init flags url key =
-    let items = []
-        cmd = Cmd.none -- loadItems items
-    in ( { key = key, items = [], newTodo = "" }, cmd )
+    let
+        items =
+            parseFlags flags
+    in
+        ( { key = key, items = items, newTodo = "" }
+        , Cmd.none
+        )
 
 
 -------------------------------------------------------------------------------
