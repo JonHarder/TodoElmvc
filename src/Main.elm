@@ -23,6 +23,7 @@ type Msg
     | DeleteItem Int
     | UpdateNewTodo String
     | MakeItem
+    | ClearItems
 
 
 parseFlags : Json.Value -> List Item
@@ -66,6 +67,7 @@ view model =
                 [ text ("Todo: " ++ (String.fromInt notDoneCount))
                 , text (" Done: " ++ (String.fromInt doneCount))
                 ]
+            , button [ onClick ClearItems ] [ text "clear" ]
             ]
 
 
@@ -152,6 +154,12 @@ update msg model =
                 ( { model | items = items , newTodo = "" }
                 , cmd
                 )
+
+        ClearItems ->
+            let
+                items = []
+            in
+                ( { model | items = items }, saveList items )
 
 
 -----------------------------------------------------------------------------------

@@ -4,6 +4,8 @@ body {
     width: 100%;
     font-family: 'Open Sans', sans-serif;
     font-size: 20px;
+    color: #333;
+    background: #ddd;
 }
 
 @media only screen and (min-width: 768px) {
@@ -21,12 +23,41 @@ ol {
     padding: 0;
 }
 
+input {
+    background: #ddd;
+    color: #333;
+}
+
+input[type=checkbox]:checked {
+    background: #ddd;
+}
+
 li {
     border: 1px solid black;
     border-radius: 3px;
     margin: 5px;
     cursor: pointer;
     display: flex;
+}
+
+button {
+    background: #ddd;
+    color: #333;
+    border: 1px solid black;
+    border-radius: 4px;
+    padding: 3px;
+    cursor: pointer;
+}
+
+button:hover {
+    background: #999;
+}
+
+button.delete {
+    font-size: 20px;
+    background: inherit;
+    border: 0px;
+    border-radius: 25px;
 }
 
 li label {
@@ -56,23 +87,11 @@ li form input {
 
 .delete {
     margin-right: 10px;
+    color: #000;
+    background: #fff;
 }
 
 .strikethrough {
     text-decoration: line-through;
 }
 
-button {
-    cursor: pointer;
-}
-
-button.delete {
-    font-size: 20px;
-    background: inherit;
-    border: 0px;
-    border-radius: 25px;
-}
-
-button.delete:hover {
-    background: #cccccc;
-}

@@ -1,7 +1,18 @@
 import { Elm } from './Main.elm'
 import './main.css'
 
-var app = Elm.Main.init({
+
+const loadItems = () => {
+    const items = JSON.parse(localStorage.getItem('cache'))
+    if (!items) {
+        return []
+    } else {
+        return items
+    }
+}
+
+
+let app = Elm.Main.init({
     node: document.querySelector('#main'),
     flags: {
         items: loadItems()
@@ -9,16 +20,6 @@ var app = Elm.Main.init({
 })
 
 
-app.ports.cache.subscribe(function (data) {
-    localStorage.setItem('cache', JSON.stringify(data))
-})
-
-
-function loadItems() {
-    var items = JSON.parse(localStorage.getItem('cache'))
-    if (!items) {
-        return []
-    } else {
-        return items
-    }
-}
+app.ports.cache.subscribe(
+    data => localStorage.setItem('cache', JSON.stringify(data))
+)
